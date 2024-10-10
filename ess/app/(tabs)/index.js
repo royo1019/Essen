@@ -82,12 +82,15 @@ const Home = () => {
     return (
         <>
             {/* This hides the header */}
+            
             <Stack.Screen options={{ headerShown: false }} />
             <View style={styles.container}>
                 {/* Move SearchAnimation to the top */}
                 <SearchAnimation style={styles.searchbar} />
+                
 
                 <Text style={styles.welcome}>Welcome, User!</Text>
+                <Text style={styles.profile} onPress={() => router.push('/profile')}>My Profile</Text>
                 <Text style={styles.subtext}>Buy or Borrow, Your Choice!</Text>
 
                 {/* Infinite Image Slider */}
@@ -137,6 +140,9 @@ const styles = StyleSheet.create({
         paddingTop: 0,
         paddingLeft: 30,
         paddingRight: 30,
+    },
+    profile:{
+
     },
     welcome: {
         fontWeight: '700',
