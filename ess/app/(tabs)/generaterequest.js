@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, StyleSheet, Button, ScrollView } from 'react-native';
+import { View, Text, TextInput, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
 import { useRouter } from 'expo-router';
 
 const NewRequestPage = () => {
@@ -51,7 +51,9 @@ const NewRequestPage = () => {
                 onChangeText={setDetails}
             />
 
-            <Button title="Submit Request" onPress={handleSubmit} />
+            <TouchableOpacity style={styles.submitButton} onPress={handleSubmit}>
+                <Text style={styles.buttonText}>Submit Request</Text>
+            </TouchableOpacity>
         </ScrollView>
     );
 };
@@ -61,7 +63,7 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: '#e3f2f8',
         paddingHorizontal: 20,
-        paddingTop: 100,
+        paddingTop: 150,
     },
     heading: {
         fontSize: 30,
@@ -69,8 +71,7 @@ const styles = StyleSheet.create({
         marginBottom: 20,
         marginLeft: 20,
     },
-    inputHeading:
-    {
+    inputHeading: {
         marginLeft: 20,
         fontWeight: '500',
     },
@@ -86,8 +87,21 @@ const styles = StyleSheet.create({
         borderRadius: 10,
     },
     textArea: {
-        height: 100, // Fixed height for the text area
-        textAlignVertical: 'top', // Align text at the top
+        height: 100,
+        textAlignVertical: 'top',
+    },
+    submitButton: {
+        backgroundColor: '#2A9BE7',
+        borderRadius: 10,
+        padding: 15,
+        alignItems: 'center',
+        marginVertical: 20,
+        marginHorizontal: 40,
+    },
+    buttonText: {
+        color: '#fff', // White text color
+        fontSize: 18, // Font size
+        fontWeight: 'bold', // Bold text
     },
 });
 

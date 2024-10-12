@@ -10,6 +10,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@supabase/supabase-js": "^2.45.4",
     "expo": "^51.0.37",
     "express": "^4.21.0",
     "metro": "^0.80.12",

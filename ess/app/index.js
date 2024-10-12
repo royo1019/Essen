@@ -38,7 +38,6 @@ const Home = () => {
           <Text style={styles.buttonText}>Register</Text>
         </TouchableOpacity>
 
-
       </View>
     </View>
   );

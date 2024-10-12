@@ -53,6 +53,7 @@ const MyRequestsPage = () => {
             <Text style={styles.backText}>Back</Text>
           </TouchableOpacity>
           <Text style={styles.sectionTitle}>My Requests</Text>
+          <Text>This page is used to show all the requests ive ever made, and their status -- if they were accepted or declined or pending</Text>
         </View>
       }
     />

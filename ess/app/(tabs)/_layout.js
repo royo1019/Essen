@@ -61,9 +61,9 @@ export default function RootLayout() {
                 />
                 {/* Lent Requests Tab */}
                 <Tabs.Screen
-                    name="lentrequests"
+                    name="lentproducts"
                     options={{
-                        title: 'Lent Requests',
+                        title: 'Lent Products',
                         tabBarIcon: ({ color, size }) => (
                             <Ionicons name="hand-right-outline" size={size} color={color} />
                         ),
