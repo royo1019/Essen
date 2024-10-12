@@ -1,36 +1,65 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
 import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
 import { useRouter } from 'expo-router';
-
+import { supabase } from '../lib/supabase';
 
 const ProfilePage = () => {
-  // Sample data - replace with your state or props as needed
-  const userProfile = {
-    name: 'John Doe',
-    email: 'john.doe@example.com',
-    requestsAccepted: 15,
-    points: 120,
-    contactNo: 9902012344,
-    block: 'A',
-    roomNo: 703,
-  };
-  const router = useRouter()
+  const [userProfile, setUserProfile] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const router = useRouter();
 
+  useEffect(() => {
+    const fetchUserProfile = async () => {
+      const { data: { user }, error: userError } = await supabase.auth.getUser();
 
-  // Function to handle button press
+      // Check if user is authenticated
+      if (userError || !user) {
+        console.error('Error fetching user:', userError);
+        router.push('../auth/login');
+        return;
+      }
+
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', user.id)
+        .single();
+
+      if (error) {
+        console.error('Error fetching user profile:', error);
+      } else {
+        const profile = data;
+        profile.email = user.email; // Assign the email from the user object
+        setUserProfile(profile);
+      }
+      setLoading(false);
+    };
+
+    fetchUserProfile();
+  }, [router]);
+
+  if (loading) {
+    return <Text style={styles.loading}>Loading...</Text>;
+  }
+
+  if (!userProfile) {
+    return <Text>No profile found</Text>;
+  }
+
+  // Function to handle button press for "My Requests"
   const handleMyRequestsPress = () => {
-    // Implement your navigation logic here, for example:
-    console.log("My Requests button pressed");
-    // If you're using React Navigation, it could be:
-    // navigation.navigate('MyRequests'); // Change 'MyRequests' to your actual screen name
+    router.push('/myrequests');
+  };
+
+  const handleLogOut = () => {
+    router.push('../auth/login');
   };
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
-
       <View style={styles.infoContainer}>
-        <Text style={styles.infoLabel}>Hello {userProfile.name}!</Text>
+        <Text style={styles.infoLabel}>Hello {userProfile.full_name || 'User'}!</Text>
         <FontAwesome6 name="circle-user" size={37} color="black" />
       </View>
       <Text style={styles.inLabel}>Welcome back</Text>
@@ -38,23 +67,23 @@ const ProfilePage = () => {
         <Text style={styles.subheading}>Personal Details</Text>
         <Text style={styles.text}>
           <Text style={styles.label}>Name: </Text>
-          {userProfile.name}
+          {userProfile.full_name || 'N/A'}
         </Text>
         <Text style={styles.text}>
           <Text style={styles.label}>Email: </Text>
-          {userProfile.email}
+          {userProfile.email || 'N/A'}
         </Text>
         <Text style={styles.text}>
           <Text style={styles.label}>Phone Number: </Text>
-          {userProfile.contactNo}
+          {userProfile.phone_number || '0'}
         </Text>
         <Text style={styles.text}>
           <Text style={styles.label}>Block: </Text>
-          {userProfile.block}
+          {userProfile.block || '0'}
         </Text>
         <Text style={styles.text}>
           <Text style={styles.label}>Room Number: </Text>
-          {userProfile.roomNo}
+          {userProfile.room_number || '0'}
         </Text>
       </View>
 
@@ -62,17 +91,23 @@ const ProfilePage = () => {
         <Text style={styles.subheading}>Statistics</Text>
         <Text style={styles.text}>
           <Text style={styles.label}>Requests Accepted: </Text>
-          {userProfile.requestsAccepted}
+          {userProfile.requests_accepted || '0'}
         </Text>
         <Text style={styles.text}>
           <Text style={styles.label}>Points: </Text>
-          {userProfile.points}
+          {userProfile.points || '0'}
         </Text>
       </View>
 
-      <TouchableOpacity style={styles.requestButton}
-        onPress={() => router.push("/myrequests")}>
+      <TouchableOpacity style={styles.requestButton} onPress={handleMyRequestsPress}>
         <Text style={styles.requestButtonText}>My Requests</Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity
+        style={styles.logOutButton}
+        onPress={handleLogOut}
+      >
+        <Text style={styles.logouttext}>Log Out</Text>
       </TouchableOpacity>
 
       <Text style={styles.lab}>Borrow Freely, Return Kindly!</Text>
@@ -87,7 +122,6 @@ const styles = StyleSheet.create({
     padding: 20,
     backgroundColor: '#e3f2f8',
     color: 'black',
-
   },
   heading: {
     fontSize: 24,
@@ -98,6 +132,29 @@ const styles = StyleSheet.create({
     color: 'black',
     paddingLeft: 20,
     paddingRight: 20,
+  },
+  logOutButton: {
+    backgroundColor: '#fff',
+    borderRadius: 10,
+    padding: 10,
+    alignItems: 'center',
+    marginBottom: 20,
+    marginHorizontal: 80,
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 4,
+    shadowOffset: { width: 0, height: 2 },
+  },
+  logouttext: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: 'red',
+  },
+  loading: {
+    fontWeight: '500',
+    position: 'absolute',
+    top: 450,
+    left: 180,
   },
   card: {
     backgroundColor: '#fff',
@@ -113,13 +170,11 @@ const styles = StyleSheet.create({
     marginRight: 10,
     paddingLeft: 20,
     paddingRight: 20,
-
   },
   subheading: {
     fontSize: 20,
     fontWeight: 'bold',
     marginBottom: 10,
-
   },
   infoContainer: {
     flexDirection: 'row',
@@ -139,12 +194,11 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 4,
     shadowOffset: { width: 0, height: 2 },
-
   },
   requestButtonText: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: '#000', // Change text color if needed
+    color: '#000',
   },
   lab: {
     color: 'black',
@@ -152,7 +206,6 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     fontWeight: 'bold',
     marginBottom: '5%',
-
   },
   infoLabel: {
     color: 'black',

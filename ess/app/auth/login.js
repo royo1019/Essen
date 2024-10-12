@@ -26,20 +26,30 @@ export default function Auth() {
 
     async function signInWithEmail() {
         setLoading(true);
-        const { data, error } = await supabase.auth.signInWithPassword({
-            email: email.trim(),  // Trim whitespace from the email
+        const { data: authData, error } = await supabase.auth.signInWithPassword({
+            email: email.trim(),
             password: password,
         });
 
         if (error) {
-            Alert.alert('Login Error', error.message); // More descriptive alert
+            Alert.alert('Login Error', error.message);
         } else {
-            // Optional: Handle successful login
-            Alert.alert('Login Successful', `Welcome back, ${data.user.email}!`);
-            router.push('/(tabs)');
+            const { data: profileData, error: profileError } = await supabase
+                .from('profiles')
+                .select('full_name')
+                .eq('id', authData.user.id)
+                .single(); // Get the full_name associated with this user's id
+
+            if (profileError) {
+                Alert.alert('Profile Error', profileError.message);
+            } else {
+                Alert.alert('Login Successful', `Welcome back, ${profileData.full_name || authData.user.email}!`);
+                router.push('/(tabs)');
+            }
         }
         setLoading(false);
     }
+
 
     return (
         <>
@@ -82,11 +92,11 @@ const styles = StyleSheet.create({
     formContainer: {
         justifyContent: 'center',
         alignItems: 'center',
-        width: '90%',
+        width: '90%', // Keep the width responsive
         paddingHorizontal: 16,
         paddingVertical: 20,
         backgroundColor: '#ffffff',
-        borderRadius: 20,
+        borderRadius: 15,
         elevation: 5,
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 2 },
@@ -94,30 +104,34 @@ const styles = StyleSheet.create({
         shadowRadius: 5,
     },
     title: {
-        fontSize: 32,
+        fontSize: 28, // Slightly reduced for better visual balance
         fontWeight: 'bold',
-        marginBottom: 24,
-        color: '#000',
+        marginBottom: 20,
+        color: '#6200ea', // Changed color for better contrast
     },
     input: {
         height: 50,
-        borderColor: '#ccc',
+        borderColor: '#6200ea', // Changed border color for better visibility
         borderWidth: 1,
         borderRadius: 8,
+        width: 150,
         paddingHorizontal: 16,
-        marginBottom: 16,
-        backgroundColor: '#fff',
+        marginBottom: 20,
+        backgroundColor: '#ffffff',
+        fontSize: 16, // Increased font size for better readability
     },
     button: {
         height: 50,
         backgroundColor: '#6200ea',
         justifyContent: 'center',
         alignItems: 'center',
+        width: 100,
         borderRadius: 8,
         marginTop: 16,
+        elevation: 3, // Added elevation for depth effect
     },
     buttonText: {
-        color: '#fff',
+        color: '#ffffff',
         fontSize: 18,
         fontWeight: 'bold',
     },

@@ -13,7 +13,6 @@ export default function RootLayout() {
         translateY.value = withTiming(0, { duration: 300 }); // Adjust the duration as needed
     }, []);
 
-    // Animated style for the tab bar
     const animatedStyle = useAnimatedStyle(() => {
         return {
             transform: [{ translateY: translateY.value }],
@@ -86,6 +85,7 @@ const styles = StyleSheet.create({
         height: 70, // Increased height
         width: '80%', // Set width to 80% of the screen
         borderRadius: 40,
+        backgroundColor: '#F0F0F0',
         alignItems: 'flex-end',
         paddingBottom: 10,
         shadowColor: '#000',

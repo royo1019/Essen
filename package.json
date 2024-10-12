@@ -12,6 +12,7 @@
   "dependencies": {
     "@supabase/supabase-js": "^2.45.4",
     "expo": "^51.0.37",
+    "expo-blur": "~13.0.2",
     "express": "^4.21.0",
     "metro": "^0.80.12",
     "react-native": "^0.75.4"

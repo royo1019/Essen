@@ -1,11 +1,11 @@
-// Home.js
-import { StyleSheet, Text, View, ScrollView, FlatList, Image, Dimensions, TouchableOpacity } from 'react-native';
-import React, { useRef, useEffect } from 'react';
+import { StyleSheet, Text, View, FlatList, Image, Dimensions, TouchableOpacity } from 'react-native';
+import React, { useRef, useEffect, useState } from 'react';
 import { useRouter, Stack } from "expo-router";
 import { useNavigation } from '@react-navigation/native';
-import SearchAnimation from '../../components/SearchAnimation'; // Make sure this path is correct
+import { supabase } from '../lib/supabase';
+import SearchAnimation from '../../components/SearchAnimation';
+import { BlurView } from 'expo-blur'; // Import BlurView
 import AntDesign from '@expo/vector-icons/AntDesign';
-
 
 const { width } = Dimensions.get('window'); // Get device width for responsive images
 
@@ -30,13 +30,26 @@ const Home = () => {
     const sliderRef = useRef(null);
     const intervalRef = useRef(null);
     const currentIndex = useRef(0); // To keep track of the current index
+    const [fullName, setFullName] = useState(''); // Store user's full name
+
+    useEffect(() => {
+        const getUserData = async () => {
+            const { data: { user } } = await supabase.auth.getUser();
+            if (user && user.user_metadata && user.user_metadata.full_name) {
+                setFullName(user.user_metadata.full_name); // Set full name
+            } else {
+                setFullName('User'); // Fallback if full_name isn't available
+            }
+        };
+
+        getUserData();
+    }, []);
 
     // To make the infinite slider, we duplicate the list
     const infiniteImageData = [...imageData, ...imageData];
 
     const renderImageItem = ({ item }) => (
         <Image source={{ uri: item.uri }} style={styles.sliderImage} />
-
     );
 
     const renderCategoryItem = ({ item }) => (
@@ -44,7 +57,6 @@ const Home = () => {
             <Image source={{ uri: item.imageUri }} style={styles.cardImage} />
             <Text style={styles.cardName}>{item.name}</Text>
         </TouchableOpacity>
-
     );
 
     const onScrollEnd = (event) => {
@@ -75,22 +87,14 @@ const Home = () => {
 
     const handleCardPress = (item) => {
         console.log('Item clicked:', item); // Log clicked item details
-
     };
-
 
     return (
         <>
-            {/* This hides the header */}
-            
             <Stack.Screen options={{ headerShown: false }} />
             <View style={styles.container}>
-                {/* Move SearchAnimation to the top */}
                 <SearchAnimation style={styles.searchbar} />
-                
-
-                <Text style={styles.welcome}>Welcome, User!</Text>
-                <Text style={styles.profile} onPress={() => router.push('/profile')}>My Profile</Text>
+                <Text style={styles.welcome}>Welcome, {fullName}!</Text>
                 <Text style={styles.subtext}>Buy or Borrow, Your Choice!</Text>
 
                 {/* Infinite Image Slider */}
@@ -105,25 +109,14 @@ const Home = () => {
                     onMomentumScrollEnd={onScrollEnd}
                     style={styles.imageSlider}
                 />
+                <Text style={styles.idk}>What else can we add for homepageeee????</Text>
+                {/* Card Element with Blur Effect */}
+                <BlurView intensity={20} style={styles.blurContainer}>
+                    <Text style={styles.blurText}>Item due soon! 3 days and 5 hours left</Text>
+                </BlurView>
 
-                {/* Essential Items List */}
-                <ScrollView>
-                    <View style={styles.sectionHeader}>
-                        <Text style={styles.sectionTitle}>Popular Categories</Text>
-                        <Text style={styles.sectionTitle2}>Show All</Text>
-                    </View>
-                    {/* Render Cards for Categories */}
-                    <FlatList
-                        data={categoryData}
-                        renderItem={renderCategoryItem}
-                        keyExtractor={(item) => item.id}
-                        horizontal
-                        showsHorizontalScrollIndicator={false}
-                        contentContainerStyle={styles.categoryList}
-                    />
-                </ScrollView>
 
-                {/* Bottom Navigation Bar */}
+
             </View>
         </>
     );
@@ -141,8 +134,11 @@ const styles = StyleSheet.create({
         paddingLeft: 30,
         paddingRight: 30,
     },
-    profile:{
-
+    idk:
+    {
+        position: 'absolute',
+        top: 700,
+        left: 75,
     },
     welcome: {
         fontWeight: '700',
@@ -165,36 +161,31 @@ const styles = StyleSheet.create({
         borderRadius: 10,
         marginRight: 10,
     },
-    searchbar:
-    {
+    searchbar: {
         color: "#fff",
     },
-    sectionHeader: {
+    blurContainer: {
         flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        marginBottom: 16,
+        position: 'absolute',
+        top: 500,
+        left: 30,
+        padding: 10,
+        borderRadius: 10,
+        height: 100,
+        width: '100%',
+        overflow: 'hidden', // To clip child elements
+        backgroundColor: 'rgba(0, 0, 0, 0.5)', // Darker background with opacity
     },
-    sectionTitle: {
-        fontSize: 20,
-        fontWeight: 'bold',
-    },
-    sectionTitle2: {
-        fontSize: 14,
-        fontWeight: 'bold',
-        color: '#4c81d8',
+    blurText: {
+        color: '#fff', // White text for better contrast
+        fontSize: 16,
+        fontWeight: '600',
+        textAlign: 'center', // Center align the text
+        marginTop: 20, // Adjust the margin as needed
     },
     card: {
-        backgroundColor: '#fff',
+        backgroundColor: 'transparent', // Make card background transparent
         borderRadius: 10,
-        shadowColor: '#000',
-        shadowOffset: {
-            width: 0,
-            height: 2,
-        },
-        shadowOpacity: 0.25,
-        shadowRadius: 4,
-        elevation: 5,
         marginRight: 10,
         width: width * 0.45, // Card width (adjust as needed)
     },
@@ -209,5 +200,4 @@ const styles = StyleSheet.create({
         padding: 10,
         textAlign: 'center',
     },
-
 });

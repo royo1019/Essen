@@ -18,8 +18,7 @@ const RequestDetail = () => {
 
     return (
         <View style={styles.container}>
-            {/* Back Button Section */}
-            <TouchableOpacity style={styles.backContainer} onPress={() => router.push("/(tabs)/othersrequests")}>
+            <TouchableOpacity style={styles.backContainer} onPress={() => router.replace("/(tabs)/othersrequests")}>
                 <AntDesign name="left" size={24} color="black" />
                 <Text style={styles.backText}>Back</Text>
             </TouchableOpacity>
