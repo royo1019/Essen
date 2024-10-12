@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { Alert, StyleSheet, View, Text, TextInput, TouchableOpacity, AppState } from 'react-native';
 import { supabase } from '../lib/supabase';
-import { Stack } from 'expo-router';
+import { Stack, useRouter } from 'expo-router';
 
 export default function Auth() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [loading, setLoading] = useState(false);
+    const router = useRouter();
 
     useEffect(() => {
         const handleAppStateChange = (state) => {
@@ -25,12 +26,18 @@ export default function Auth() {
 
     async function signInWithEmail() {
         setLoading(true);
-        const { error } = await supabase.auth.signInWithPassword({
-            email: email,
+        const { data, error } = await supabase.auth.signInWithPassword({
+            email: email.trim(),  // Trim whitespace from the email
             password: password,
         });
 
-        if (error) Alert.alert(error.message);
+        if (error) {
+            Alert.alert('Login Error', error.message); // More descriptive alert
+        } else {
+            // Optional: Handle successful login
+            Alert.alert('Login Successful', `Welcome back, ${data.user.email}!`);
+            router.push('/(tabs)');
+        }
         setLoading(false);
     }
 
