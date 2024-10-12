@@ -2,7 +2,7 @@ import { StyleSheet, Text, View, TextInput, TouchableOpacity, Alert } from 'reac
 import React, { useState, useRef } from 'react';
 import { Formik } from 'formik';
 import { Video, ResizeMode } from 'expo-av';
-import { Stack, useRouter } from 'expo-router';
+import { Stack } from 'expo-router';
 import * as Yup from 'yup';
 import { supabase } from '../lib/supabase';
 
@@ -24,7 +24,6 @@ const validationSchema = Yup.object().shape({
 const Register = () => {
     const videoRef = useRef(null);
     const [loading, setLoading] = useState(false);
-    const router = useRouter();
 
     const signUpWithEmail = async (email, password, full_name, phone_number, room_number, block) => {
         setLoading(true);
@@ -44,15 +43,7 @@ const Register = () => {
         if (error) {
             Alert.alert('Registration Error', error.message);
         } else {
-            Alert.alert('Success', 'Please check your inbox for email verification!', [
-                {
-                    text: 'OK',
-                    onPress: () => {
-                        // Navigate to the main tabs after successful registration
-                        router.push('/(tabs)'); // Adjust the path as needed
-                    },
-                },
-            ]);
+            Alert.alert('Success', 'Please check your inbox for email verification!');
         }
         setLoading(false);
     };
