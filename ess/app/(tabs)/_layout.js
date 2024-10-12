@@ -26,6 +26,7 @@ export default function RootLayout() {
                 screenOptions={{
                     headerShown: false, // Hide the header for all screens
                     tabBarStyle: styles.tabBar, // Apply unique styles to the tab bar
+                    // tabBarShowLabel: false,
                 }}
             >
                 {/* Home Tab */}
@@ -46,15 +47,15 @@ export default function RootLayout() {
                         tabBarIcon: ({ color, size }) => (
                             <Ionicons name="list-outline" size={size} color={color} />
                         ),
+                        resizeMode: 'contain'
                     }}
                 />
-                {/* My Requests Tab */}
                 <Tabs.Screen
-                    name="myrequests"
+                    name='generaterequest' // Replace with your new tab name
                     options={{
-                        title: 'My Requests',
+                        title: 'New',
                         tabBarIcon: ({ color, size }) => (
-                            <Ionicons name="clipboard-outline" size={size} color={color} />
+                            <Ionicons name="add-circle-outline" size={size} color={color} />
                         ),
                     }}
                 />
@@ -79,17 +80,22 @@ const styles = StyleSheet.create({
     },
     tabBar: {
         position: 'absolute',
-        bottom: 0,
+        bottom: 40,
         left: 0,
         right: 0,
-        height: 60,
-        backgroundColor: '#ffffff',
-        borderTopLeftRadius: 20,
-        borderTopRightRadius: 20,
-        elevation: 10,
+        height: 70, // Increased height
+        width: '80%', // Set width to 80% of the screen
+        borderRadius: 40,
+        alignItems: 'flex-end',
+        paddingBottom: 10,
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.25,
         shadowRadius: 4,
+        justifyContent: 'space-around', // Distribute icons evenly
+        alignItems: 'center',
+        marginLeft: 40, // Center horizontally
+        marginRight: 40, // Center horizontally
     },
+
 });

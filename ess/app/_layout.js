@@ -16,6 +16,10 @@ export default function RootLayout() {
         name="RequestDetail"
         options={{ headerShown: false, title: "deets" }}
       />
+      <Stack.Screen
+        name="myrequests"
+        options={{ headerShown: false, title: "deets" }}
+      />
     </Stack>
   );
 }

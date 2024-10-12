@@ -4,7 +4,7 @@ import { View, Text, StyleSheet } from 'react-native';
 const RequestItem = () => {
     return (
         <View style={styles.container}>
-            <Text>Profile</Text>
+            <Text>Lent Requests</Text>
         </View>
     );
 };
