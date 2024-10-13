@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { Alert, StyleSheet, View, Text, TextInput, TouchableOpacity, AppState } from 'react-native';
 import { supabase } from '../lib/supabase';
 import { Stack, useRouter } from 'expo-router';
+import AntDesign from '@expo/vector-icons/AntDesign';
+
 
 export default function Auth() {
     const [email, setEmail] = useState('');
@@ -55,6 +57,10 @@ export default function Auth() {
         <>
             <Stack.Screen options={{ headerShown: false }} />
             <View style={styles.container}>
+                <TouchableOpacity style={styles.backContainer} onPress={() => router.replace("/")}>
+                    <AntDesign name="left" size={24} color="black" />
+                    <Text style={styles.backText}>Back</Text>
+                </TouchableOpacity>
                 <View style={styles.formContainer}>
                     <Text style={styles.title}>Login</Text>
                     <TextInput
@@ -108,6 +114,20 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
         marginBottom: 20,
         color: '#6200ea', // Changed color for better contrast
+    },
+    backContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        position: 'absolute',
+        top: 70,
+        left: 20,
+        zIndex: 1,
+    },
+    backText: {
+        marginLeft: 10,
+        color: 'black',
+        fontWeight: '700',
+        fontSize: 16,
     },
     input: {
         height: 50,

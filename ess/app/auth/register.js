@@ -1,10 +1,12 @@
-import { StyleSheet, Text, View, TextInput, TouchableOpacity, Alert } from 'react-native';
+import { StyleSheet, Text, View, TextInput, TouchableOpacity, Alert, findNodeHandle } from 'react-native';
 import React, { useState, useRef } from 'react';
 import { Formik } from 'formik';
 import { Video, ResizeMode } from 'expo-av';
-import { Stack } from 'expo-router';
+import { Stack, useRouter } from 'expo-router';
 import * as Yup from 'yup';
 import { supabase } from '../lib/supabase';
+import AntDesign from '@expo/vector-icons/AntDesign';
+
 
 const validationSchema = Yup.object().shape({
     full_name: Yup.string().required('Full name is required').label('Full Name'),
@@ -24,6 +26,8 @@ const validationSchema = Yup.object().shape({
 const Register = () => {
     const videoRef = useRef(null);
     const [loading, setLoading] = useState(false);
+    const router = useRouter();
+
 
     const signUpWithEmail = async (email, password, full_name, phone_number, room_number, block) => {
         setLoading(true);
@@ -65,6 +69,10 @@ const Register = () => {
                 />
                 <View style={styles.overlay} />
                 <View style={styles.formContainer}>
+                    <TouchableOpacity style={styles.backContainer} onPress={() => router.replace("/")}>
+                        <AntDesign name="left" size={24} color="white" />
+                        <Text style={styles.backText}>Back</Text>
+                    </TouchableOpacity>
                     <Text style={styles.title}>Register</Text>
                     <Formik
                         initialValues={{
@@ -231,6 +239,20 @@ const styles = StyleSheet.create({
     errorText: {
         color: 'red',
         marginBottom: 16,
+    },
+    backContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        position: 'absolute',
+        top: -60,
+        left: 0,
+        zIndex: 1,
+    },
+    backText: {
+        marginLeft: 10,
+        color: 'white',
+        fontWeight: '700',
+        fontSize: 16,
     },
     button: {
         height: 50,

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator } from 'react-native';
 import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
 import { useRouter } from 'expo-router';
 import { supabase } from '../lib/supabase';
@@ -13,7 +13,6 @@ const ProfilePage = () => {
     const fetchUserProfile = async () => {
       const { data: { user }, error: userError } = await supabase.auth.getUser();
 
-      // Check if user is authenticated
       if (userError || !user) {
         console.error('Error fetching user:', userError);
         router.push('../auth/login');
@@ -39,22 +38,23 @@ const ProfilePage = () => {
     fetchUserProfile();
   }, [router]);
 
-  if (loading) {
-    return <Text style={styles.loading}>Loading...</Text>;
-  }
-
-  if (!userProfile) {
-    return <Text>No profile found</Text>;
-  }
-
   // Function to handle button press for "My Requests"
   const handleMyRequestsPress = () => {
     router.push('/myrequests');
   };
 
   const handleLogOut = () => {
-    router.push('../auth/login');
+    router.push('/');
   };
+  if (loading) {
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="#0000ff" />
+        <Text style={styles.loadingText}>Loading profile...</Text>
+      </View>
+    );
+  }
+
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
@@ -171,6 +171,12 @@ const styles = StyleSheet.create({
     paddingLeft: 20,
     paddingRight: 20,
   },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#F0F4F8',
+  },
   subheading: {
     fontSize: 20,
     fontWeight: 'bold',
@@ -194,6 +200,11 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 4,
     shadowOffset: { width: 0, height: 2 },
+  },
+  loadingText: {
+    fontSize: 20,
+    fontWeight: '500',
+    color: '#34495E',
   },
   requestButtonText: {
     fontSize: 16,

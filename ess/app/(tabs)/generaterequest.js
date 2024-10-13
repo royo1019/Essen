@@ -47,7 +47,7 @@ const NewRequestPage = () => {
             } else {
                 console.log('Request submitted successfully:', data);
                 // Redirect to the requests page after submission
-                router.push('/RequestItem');
+                router.push('/myrequests');
             }
         } catch (err) {
             console.error('Unexpected error:', err);

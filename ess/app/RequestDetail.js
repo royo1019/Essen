@@ -1,7 +1,10 @@
 import React from 'react';
-import { View, Text, StyleSheet, Image, TouchableOpacity } from 'react-native';
-import { useGlobalSearchParams, useRouter } from 'expo-router'; // Import useRouter
+import { View, Text, StyleSheet, Image, TouchableOpacity, Alert } from 'react-native';
+import { useGlobalSearchParams, useRouter } from 'expo-router';
 import AntDesign from '@expo/vector-icons/AntDesign';
+import { supabase } from './lib/supabase';
+
+
 
 const RequestDetail = () => {
     const { request } = useGlobalSearchParams(); // Get the request parameter from the query
@@ -16,6 +19,33 @@ const RequestDetail = () => {
         );
     }
 
+    const handleAccept = async () => {
+        try {
+            // Update the request status in the Supabase database
+            const { data, error } = await supabase
+                .from('requests') // Replace 'requests' with your table name
+                .update({ status: 'accepted' }) // Set the status to 'accepted'
+                .eq('id', parsedRequest.id); // Update the request with the matching ID
+
+            if (error) {
+                throw error;
+            }
+
+            // Show success message
+            Alert.alert("Success", "You have accepted the request.");
+        } catch (error) {
+            // Show error message if update fails
+            Alert.alert("Error", "Failed to accept the request. Please try again.");
+            console.log(error);
+        }
+    };
+
+    const handleDismiss = () => {
+        // Handle dismissal logic here
+        router.replace('./(tabs)/othersrequests');
+        console.log("Request Dismissed");
+    };
+
     return (
         <View style={styles.container}>
             <TouchableOpacity style={styles.backContainer} onPress={() => router.replace("/(tabs)/othersrequests")}>
@@ -24,13 +54,26 @@ const RequestDetail = () => {
             </TouchableOpacity>
 
             <Text style={styles.headerText}>Scheduled Borrow</Text>
-            <Text style={styles.subHeaderText}>Requested on 15 May, 2024</Text>
             <View style={styles.imageContainer}>
-                <Image source={{ uri: parsedRequest.image.uri }} style={styles.productImage} />
+                {parsedRequest.image?.uri && (
+                    <Image source={{ uri: parsedRequest.image.uri }} style={styles.productImage} />
+                )}
+
                 <View style={styles.detailsContainer}>
-                    <Text style={styles.itemTitle}>{parsedRequest.title}</Text>
-                    <Text style={styles.itemBorrower}>Requested by {parsedRequest.borrower}</Text>
-                    <Text style={styles.detailText}>Time Period: {parsedRequest.timePeriod}</Text>
+                    <Text style={styles.itemTitle}>{parsedRequest.item_name}</Text>
+                    <Text style={styles.detailText}>Requested by: {parsedRequest.full_name}</Text>
+                    <Text style={styles.detailText}>Time Period: {parsedRequest.borrow_period}</Text>
+                    <Text style={styles.detailText}>Request Time: {parsedRequest.created_at}</Text>
+                    <Text style={styles.detailText}>Additional Details: {parsedRequest.additional_details}</Text>
+
+                    <View style={styles.buttonContainer}>
+                        <TouchableOpacity style={styles.acceptedButton} onPress={handleAccept}>
+                            <Text style={styles.buttonText}>Accept</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity style={styles.dismissButton} onPress={handleDismiss}>
+                            <Text style={styles.buttonText}>Dismiss</Text>
+                        </TouchableOpacity>
+                    </View>
                 </View>
             </View>
         </View>
@@ -62,16 +105,10 @@ const styles = StyleSheet.create({
     },
     itemTitle: {
         marginTop: 50,
+        marginBottom: 20,
         fontSize: 33,
         fontWeight: "700",
         alignSelf: "center",
-    },
-    itemBorrower: {
-        marginTop: 5,
-        alignSelf: "center",
-        fontSize: 15,
-        fontWeight: "500",
-        color: "#737373",
     },
     detailsContainer: {
         position: 'absolute',
@@ -90,8 +127,10 @@ const styles = StyleSheet.create({
     },
     detailText: {
         fontSize: 18,
-        marginVertical: 5,
+        marginVertical: 10,
         color: '#333',
+        marginHorizontal: 10,
+        fontWeight: '600',
     },
     errorText: {
         fontSize: 18,
@@ -101,12 +140,36 @@ const styles = StyleSheet.create({
     headerText: {
         fontWeight: '600',
         alignItems: 'center',
+        fontSize: 23,
     },
-    subHeaderText: {
-        fontWeight: '600',
-        alignItems: 'center',
-        color: '#878787',
-        paddingTop: 5,
+    buttonContainer: {
+        flexDirection: 'row', // Align buttons in a row
+        justifyContent: 'space-between', // Space out buttons
+        marginTop: 30, // Add some space above buttons
+        width: '100%', // Make buttons take full width
+    },
+    acceptedButton: {
+        backgroundColor: '#5ecb3c', // Button color for accepted
+        borderRadius: 20,
+        paddingVertical: 10,
+        paddingHorizontal: 20,
+        alignItems: 'center', // Center text in the button
+        flex: 1, // Take equal space for both buttons
+        marginRight: 10, // Space between buttons
+    },
+    dismissButton: {
+        backgroundColor: '#7f7f7f', // Button color for dismiss
+        borderRadius: 20,
+        paddingVertical: 10,
+        paddingHorizontal: 20,
+        alignItems: 'center', // Center text in the button
+        flex: 1, // Take equal space for both buttons
+        marginLeft: 10, // Space between buttons
+    },
+    buttonText: {
+        color: 'white', // Button text color
+        fontWeight: '700',
+        fontSize: 16,
     },
     backContainer: {
         flexDirection: 'row', // Align children in a row

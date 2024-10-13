@@ -1,5 +1,25 @@
 # `@remix-run/server-runtime`
 
+## 2.13.1
+
+No significant changes to this package were made in this release. [See the repo `CHANGELOG.md`](https://github.com/remix-run/remix/blob/main/CHANGELOG.md) for an overview of all changes in v2.13.1.
+
+## 2.13.0
+
+### Minor Changes
+
+- Stabilize React Router APIs in Remix ([#9980](https://github.com/remix-run/remix/pull/9980))
+  - Adopt stabilized React Router APIs internally
+    - Single Fetch: `unstable_dataStrategy` -> `dataStrategy`
+    - Lazy Route Discovery: `unstable_patchRoutesOnNavigation` -> `patchRoutesOnNavigation`
+  - Stabilize public-facing APIs
+    - Single Fetch: `unstable_data()` -> `data()`
+    - `unstable_viewTransition` -> `viewTransition` (`Link`, `Form`, `navigate`, `submit`)
+    - `unstable_flushSync>` -> `<Link viewTransition>` (`Link`, `Form`, `navigate`, `submit`, `useFetcher`)
+- Stabilize future flags ([#10072](https://github.com/remix-run/remix/pull/10072))
+  - `future.unstable_singleFetch` -> `future.v3_singleFetch`
+  - `future.unstable_lazyRouteDiscovery` -> `future.v3_lazyRouteDiscovery`
+
 ## 2.12.1
 
 ### Patch Changes
@@ -14,6 +34,7 @@
 - Single Fetch: Do not try to encode a `turbo-stream` body into 304 responses ([#9941](https://github.com/remix-run/remix/pull/9941))
 
 - Single Fetch: fix revalidation behavior bugs ([#9938](https://github.com/remix-run/remix/pull/9938))
+
   - With Single Fetch, existing routes revalidate by default
   - This means requests do not need special query params for granular route revalidations out of the box - i.e., `GET /a/b/c.data`
   - There are two conditions that will trigger granular revalidation:

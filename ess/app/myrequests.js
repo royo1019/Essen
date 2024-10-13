@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { TouchableOpacity, View, Text, StyleSheet, FlatList } from 'react-native';
+import { TouchableOpacity, View, Text, StyleSheet, FlatList, ActivityIndicator } from 'react-native';
 import AntDesign from '@expo/vector-icons/AntDesign';
 import { useRouter } from 'expo-router';
 import { supabase } from './lib/supabase';
 
 const MyRequestsPage = () => {
-  const [combinedData, setCombinedData] = useState([]);
+  const [pendingRequests, setPendingRequests] = useState([]);
   const router = useRouter(); // Get the router object
 
   useEffect(() => {
@@ -24,60 +24,39 @@ const MyRequestsPage = () => {
       if (user) {
         const userEmail = user.email; // Get the email of the currently logged-in user
 
-        // Fetch all requests created by the user
+        // Fetch all pending requests created by the user
         const { data: userRequests, error: userError } = await supabase
           .from('requests')
           .select('*')
-          .eq('user_email', userEmail);
+          .eq('user_email', userEmail)
+          .neq('status', 'accepted'); // Fetch only non-accepted (pending) requests
 
-        // Fetch all accepted requests from other users
-        const { data: acceptedRequests, error: acceptedError } = await supabase
-          .from('requests')
-          .select('*')
-          .eq('status', 'accepted')
-          .neq('user_email', userEmail); // Requests from other users
-
-        if (userError || acceptedError) {
-          console.error('Error fetching requests:', userError || acceptedError);
+        if (userError) {
+          console.error('Error fetching pending requests:', userError);
           return;
         }
 
-        // Process and format the data
-        const formattedData = [
-          { title: 'Accepted Requests', data: acceptedRequests || [] },
-          { title: 'Pending Requests', data: userRequests || [] },
-        ];
-
-        setCombinedData(formattedData);
+        setPendingRequests(userRequests || []);
       }
     };
 
     fetchRequestsData();
   }, []);
 
-  // Render each section
-  const renderSection = ({ item }) => (
-    <View style={styles.requestBoxesSection}>
-      <Text style={styles.subTitle}>{item.title}</Text>
-      {item.data.map((request) => (
-        <View key={request.id} style={styles.requestCard}>
-          <Text style={styles.itemText}>Request item: {request.item_name}</Text>
-          <Text style={styles.itemTex}>Duration: {request.borrow_period}</Text>
-          <Text style={styles.statusText}>
-            {item.title === 'Accepted Requests'
-              ? `Will be returned in ${request.borrow_period} days`
-              : `Status: ${request.status}`}
-          </Text>
-        </View>
-      ))}
+  // Render each request card
+  const renderRequest = ({ item }) => (
+    <View style={styles.requestCard}>
+      <Text style={styles.itemText}>Request item: {item.item_name}</Text>
+      <Text style={styles.itemTex}>Duration: {item.borrow_period}</Text>
+      <Text style={styles.statusText}>Status: {item.status}</Text>
     </View>
   );
 
   return (
     <FlatList
-      data={combinedData}
-      keyExtractor={(item) => item.title}
-      renderItem={renderSection}
+      data={pendingRequests}
+      keyExtractor={(item) => item.id.toString()}
+      renderItem={renderRequest}
       contentContainerStyle={styles.container}
       ListHeaderComponent={
         <View style={styles.header}>
@@ -86,18 +65,26 @@ const MyRequestsPage = () => {
             <Text style={styles.backText}>Back</Text>
           </TouchableOpacity>
           <Text style={styles.sectionTitle}>My Requests</Text>
-          <Text>This page displays all your requests and their status, including pending and accepted ones.</Text>
+          <Text style={styles.details}>This page displays all the requests you've made and their status (accepted or pending).</Text>
         </View>
       }
     />
   );
 };
+
 const styles = StyleSheet.create({
   container: {
     marginTop: 60,
     flexGrow: 1,
     backgroundColor: '#F0F4F8',
     padding: 16,
+  },
+  details:
+  {
+    alignItems: 'center',
+    paddingHorizontal: 20,
+    paddingVertical: 20,
+    textAlign: 'center',
   },
   sectionTitle: {
     fontSize: 22,
@@ -106,17 +93,6 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     color: '#34495E',
     marginTop: 40,
-  },
-  requestBoxesSection: {
-    marginBottom: 24,
-    paddingLeft: 20,
-    paddingRight: 20,
-  },
-  subTitle: {
-    fontSize: 18,
-    fontWeight: '600',
-    marginBottom: 8,
-    color: '#2C3E50',
   },
   requestCard: {
     backgroundColor: '#FFFFFF',
@@ -128,6 +104,7 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     shadowRadius: 4,
     elevation: 2,
+    marginHorizontal: 20,
   },
   backContainer: {
     flexDirection: 'row',
@@ -152,14 +129,14 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '50',
     color: '#34495E',
-    marginTop:'2%',
-    fontStyle:'italic'
+    marginTop: '2%',
+    fontStyle: 'italic',
   },
   statusText: {
     fontSize: 12,
     color: '#7F8C8D',
     marginTop: 4,
-    fontWeight:'50'
+    fontWeight: '50',
   },
   header: {
     marginBottom: 20,
