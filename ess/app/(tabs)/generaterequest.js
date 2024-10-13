@@ -1,47 +1,77 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
 import { useRouter } from 'expo-router';
+import { createClient } from '@supabase/supabase-js';
 
+import { supabase } from '../lib/supabase';
 const NewRequestPage = () => {
     const router = useRouter();
 
     const [itemName, setItemName] = useState('');
     const [timePeriod, setTimePeriod] = useState('');
-    const [quotedPrice, setQuotedPrice] = useState('');
     const [details, setDetails] = useState('');
+    const [userEmail, setUserEmail] = useState('');
+
+    // Fetch the user's email from the Supabase auth session
+    useEffect(() => {
+        const fetchUserEmail = async () => {
+            const {
+                data: { user },
+                error,
+            } = await supabase.auth.getUser();
+
+            if (error) {
+                console.error('Error fetching user email:', error);
+            } else if (user) {
+                setUserEmail(user.email);
+            }
+        };
+
+        fetchUserEmail();
+    }, []);
 
     // Handle form submission
-    const handleSubmit = () => {
-        // Here you can add the logic to save the request, such as sending it to an API
+    const handleSubmit = async () => {
+        try {
+            const { data, error } = await supabase.from('requests').insert([
+                {
+                    item_name: itemName,
+                    borrow_period: timePeriod,
+                    additional_details: details,
+                    user_email: userEmail, // Add email to the request
+                },
+            ]);
 
-        // Redirect back to the requests page after submission (modify the path as needed)
-        router.push('/RequestItem');
+            if (error) {
+                console.error('Error submitting request:', error);
+            } else {
+                console.log('Request submitted successfully:', data);
+                // Redirect to the requests page after submission
+                router.push('/RequestItem');
+            }
+        } catch (err) {
+            console.error('Unexpected error:', err);
+        }
     };
 
     return (
         <ScrollView contentContainerStyle={styles.container}>
             <Text style={styles.heading}>New Request</Text>
-            <Text style={styles.inputHeading}>
-                Item Name
-            </Text>
+            <Text style={styles.inputHeading}>Item Name</Text>
             <TextInput
                 style={styles.input}
                 placeholder="Item Name"
                 value={itemName}
                 onChangeText={setItemName}
             />
-            <Text style={styles.inputHeading}>
-                Borrow Period
-            </Text>
+            <Text style={styles.inputHeading}>Borrow Period</Text>
             <TextInput
                 style={styles.input}
                 placeholder="Time period in days"
                 value={timePeriod}
                 onChangeText={setTimePeriod}
             />
-            <Text style={styles.inputHeading}>
-                Additional Details
-            </Text>
+            <Text style={styles.inputHeading}>Additional Details</Text>
             <TextInput
                 style={[styles.input, styles.textArea]}
                 placeholder="Enter details here"
@@ -99,9 +129,9 @@ const styles = StyleSheet.create({
         marginHorizontal: 40,
     },
     buttonText: {
-        color: '#fff', // White text color
-        fontSize: 18, // Font size
-        fontWeight: 'bold', // Bold text
+        color: '#fff',
+        fontSize: 18,
+        fontWeight: 'bold',
     },
 });
 
